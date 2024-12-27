@@ -1,32 +1,51 @@
-# Getting Started
+# User Microservice
 
-### Reference Documentation
+## Overview
+The User Service is a core microservice in an e-commerce backend system, responsible for managing user-related operations. It acts as a central hub for user authentication, registration, and profile management, while integrating securely with other services like order management, product services, and payment systems. Built using Spring Boot, this microservice ensures scalability, security, and efficiency, enabling seamless user experiences across the platform.
 
-For further reference, please consider the following sections:
+## Features
+- User Management: CRUD (Create, Read, Update, Delete) operations for managing user profiles.
+- Authentication and Authorization: Implements JWT-based authentication and role-based access control (RBAC).
+- User Registration: Provides APIs for user sign-up with validation and secure password storage.
+- Profile Management: Allows users to update their account information, such as name, email, and preferences.
+- Secure Communication: Uses encryption standards (e.g., HTTPS, BCrypt) to safeguard user data and credentials.
+- Integration with Other Services: Seamlessly integrates with services like Product, Order, and Payment for a unified backend.
+- Scalable Architecture: RESTful API design ensures maintainability and supports a modular, distributed system.
 
-* [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
-* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/3.4.1/maven-plugin)
-* [Create an OCI image](https://docs.spring.io/spring-boot/3.4.1/maven-plugin/build-image.html)
-* [Spring Data JPA](https://docs.spring.io/spring-boot/3.4.1/reference/data/sql.html#data.sql.jpa-and-spring-data)
-* [Spring Boot DevTools](https://docs.spring.io/spring-boot/3.4.1/reference/using/devtools.html)
-* [Flyway Migration](https://docs.spring.io/spring-boot/3.4.1/how-to/data-initialization.html#howto.data-initialization.migration-tool.flyway)
-* [Spring Web](https://docs.spring.io/spring-boot/3.4.1/reference/web/servlet.html)
+## Key Technologies Used
+- Spring Boot 3.4.0: Framework for building production-ready applications.
+- Lombok: Reduces boilerplate code by generating getter, setter, and other utility methods.
+- Maven: Dependency management and build tool.
+- Java 17: The latest LTS version, providing modern language features and performance improvements.
+- Spring Security: Provides JWT-based authentication and role-based access control.
+- REST APIs: Implements RESTful endpoints for seamless integration with other services.
+- H2/Relational Database: Stores user data in a lightweight, embeddable database (H2 for local development).
 
-### Guides
+## Security
+- JWT Authentication: Access to most endpoints requires a valid JWT token in the Authorization header.
+- Password Encryption: User passwords are securely stored using BCrypt hashing.
 
-The following guides illustrate how to use some features concretely:
+## Getting Started
+### Prerequisites
+1. Java 17
+2. Maven
+3. Docker (optional, for containerized deployments)
 
-* [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
-* [Accessing data with MySQL](https://spring.io/guides/gs/accessing-data-mysql/)
-* [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
-* [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
-* [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)
+## Steps to Run Locally
+Clone the repository:
+```
+git clone https://github.com/yourusername/user-service.git  
+cd user-service  
 
-### Maven Parent overrides
+```
+Build the project using Maven:
+```
+mvn clean install  
 
-Due to Maven's design, elements are inherited from the parent POM to the project POM.
-While most of the inheritance is fine, it also inherits unwanted elements like `<license>` and `<developers>` from the
-parent.
-To prevent this, the project POM contains empty overrides for these elements.
-If you manually switch to a different parent and actually want the inheritance, you need to remove those overrides.
+```
+Run the application:
+```
+mvn spring-boot:run  
 
+```
+Access the service
