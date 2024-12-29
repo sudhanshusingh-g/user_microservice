@@ -4,7 +4,10 @@ import org.example.userservice.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface UserRepo extends JpaRepository<User,Long> {
+import java.util.UUID;
 
+@Repository
+public interface UserRepo extends JpaRepository<User, UUID> {
+
+    boolean existsByEmail(String email);
 }
