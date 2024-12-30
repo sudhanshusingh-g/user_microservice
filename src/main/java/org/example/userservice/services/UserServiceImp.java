@@ -1,18 +1,23 @@
 package org.example.userservice.services;
 
+import org.example.userservice.DTOs.LoginResponse;
+import org.example.userservice.DTOs.TokenDTO;
+import org.example.userservice.DTOs.UserDTO;
 import org.example.userservice.exceptions.InvalidPasswordException;
+import org.example.userservice.exceptions.InvalidTokenException;
 import org.example.userservice.exceptions.UserEmailAlreadyExist;
+import org.example.userservice.exceptions.UserNotFoundException;
 import org.example.userservice.models.Role;
+import org.example.userservice.models.Token;
 import org.example.userservice.models.User;
 import org.example.userservice.repositories.RoleRepository;
+import org.example.userservice.repositories.TokenRepo;
 import org.example.userservice.repositories.UserRepo;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 
 
 @Service
@@ -21,12 +26,15 @@ public class UserServiceImp implements UserService {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private UserRepo userRepository;
     private RoleRepository roleRepository;
+    private TokenRepo tokenRepository;
     public UserServiceImp(BCryptPasswordEncoder bCryptPasswordEncoder,
                           UserRepo userRepository,
-                          RoleRepository roleRepository) {
+                          RoleRepository roleRepository,
+                          TokenRepo tokenRepository) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.tokenRepository = tokenRepository;
     }
 
     @Override
@@ -48,13 +56,28 @@ public class UserServiceImp implements UserService {
             roleRepository.save(defaultRole);
         }
         user.setRoles(Collections.singletonList(defaultRole));
-
-        return userRepository.save(user);
+        user= userRepository.save(user);
+        return user;
     }
 
     @Override
-    public User loginUser(String email, String password) {
-        return null;
+    public LoginResponse loginUser(String email, String password) {
+        User user=userRepository.findByEmail(email)
+                .orElseThrow(
+                        ()->new UserNotFoundException("User not found.")
+                );
+        if(!bCryptPasswordEncoder.matches(password,user.getPassword())){
+            throw new InvalidPasswordException("Invalid password");
+        }
+            Token token=new Token();
+            token.setUser(user);
+            token.setExpiresIn(LocalDateTime.now().plusMonths(1));
+            tokenRepository.save(token);
+
+        LoginResponse response=new LoginResponse();
+        response.setToken(TokenDTO.fromToken(token.getTokenValue()));
+        response.setUser(UserDTO.fromUser(user));
+        return response;
     }
 
     /**
