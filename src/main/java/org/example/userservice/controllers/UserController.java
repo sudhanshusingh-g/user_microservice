@@ -32,4 +32,5 @@ public class UserController {
         LoginResponse response = userService.loginUser(request.getEmail(), request.getPassword());
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
+
 }
