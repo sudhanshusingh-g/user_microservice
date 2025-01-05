@@ -13,7 +13,7 @@ import java.util.List;
 public class UserDTO {
     private String name;
     private String email;
-    private List<Role> roles;
+    private List<RoleDTO> roles;
 
     public static UserDTO fromUser(User user) {
         assert user != null;
@@ -22,7 +22,7 @@ public class UserDTO {
         userDTO.setEmail(user.getEmail());
         userDTO.setRoles(new ArrayList<>());
         for(Role role:user.getRoles()) {
-            userDTO.getRoles().add(role);
+            userDTO.getRoles().add(RoleDTO.fromRole(role));
         }
         return userDTO;
     }
