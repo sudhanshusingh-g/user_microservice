@@ -13,7 +13,7 @@ import java.util.UUID;
 @Setter
 @Entity
 public class Token extends BaseModel {
-    private String tokenValue= UUID.randomUUID().toString();
+    private String tokenValue;
     @ManyToOne
     private User user;
     private LocalDateTime expiresIn;

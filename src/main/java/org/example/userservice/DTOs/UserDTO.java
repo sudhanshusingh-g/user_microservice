@@ -2,29 +2,29 @@ package org.example.userservice.DTOs;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.example.userservice.models.Role;
 import org.example.userservice.models.User;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
 public class UserDTO {
-    private UUID id;
     private String name;
     private String email;
-    private List<RoleDTO> roles;
+    private List<Role> roles;
 
     public static UserDTO fromUser(User user) {
+        assert user != null;
         UserDTO userDTO = new UserDTO();
-        userDTO.setId(user.getId());
-        userDTO.name = user.getName();
-        userDTO.email = user.getEmail();
-        List<RoleDTO> roles=user.getRoles()
-                        .stream()
-                                .map(RoleDTO::fromRole)
-                                        .toList();
-        userDTO.setRoles(roles);
+        userDTO.setName(user.getName());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setRoles(new ArrayList<>());
+        for(Role role:user.getRoles()) {
+            userDTO.getRoles().add(role);
+        }
         return userDTO;
     }
+
 }

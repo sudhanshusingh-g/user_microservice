@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
 //    User email already exist exception
     @ExceptionHandler(UserEmailAlreadyExist.class)
-    public ResponseEntity<ErrorResponse> handleUserEmailAlreadyExist( UserEmailAlreadyExist ex) {
+    public ResponseEntity<org.example.userservice.DTOs.ErrorResponse> handleUserEmailAlreadyExist(UserEmailAlreadyExist ex) {
         ErrorResponse errorResponse=new ErrorResponse(ex.getMessage(), HttpStatus.CONFLICT.toString());
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
