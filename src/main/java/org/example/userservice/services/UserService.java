@@ -4,7 +4,8 @@ import org.example.userservice.models.Token;
 import org.example.userservice.models.User;
 
 public interface UserService {
-    User registerUser(String name, String email, String password);
-    Token loginUser(String email, String password);
-    Void logoutUser(Token token);
+    User register(String name, String email, String password);
+    Token login(String email, String password);
+    void logout(String tokenValue);
+    User validateToken(Token token);
 }
