@@ -1,104 +1,95 @@
 package org.example.userservice.services;
 
-import org.example.userservice.DTOs.LoginResponse;
-import org.example.userservice.DTOs.TokenDTO;
-import org.example.userservice.DTOs.UserDTO;
-import org.example.userservice.exceptions.InvalidPasswordException;
-import org.example.userservice.exceptions.InvalidTokenException;
-import org.example.userservice.exceptions.UserEmailAlreadyExist;
-import org.example.userservice.exceptions.UserNotFoundException;
+import ch.qos.logback.core.testUtil.RandomUtil;
 import org.example.userservice.models.Role;
 import org.example.userservice.models.Token;
 import org.example.userservice.models.User;
 import org.example.userservice.repositories.RoleRepository;
-import org.example.userservice.repositories.TokenRepo;
-import org.example.userservice.repositories.UserRepo;
+import org.example.userservice.repositories.TokenRepository;
+import org.example.userservice.repositories.UserRepository;
+import org.example.userservice.utils.GenerateRandomString;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 
 @Service
 public class UserServiceImp implements UserService {
 
+    private UserRepository userRepository;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
-    private UserRepo userRepository;
     private RoleRepository roleRepository;
-    private TokenRepo tokenRepository;
-    public UserServiceImp(BCryptPasswordEncoder bCryptPasswordEncoder,
-                          UserRepo userRepository,
+    private TokenRepository tokenRepository;
+    public UserServiceImp(UserRepository userRepository,
+                          BCryptPasswordEncoder bCryptPasswordEncoder,
                           RoleRepository roleRepository,
-                          TokenRepo tokenRepository) {
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+                          TokenRepository tokenRepository) {
         this.userRepository = userRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.roleRepository = roleRepository;
         this.tokenRepository = tokenRepository;
     }
 
+
     @Override
-    public User registerUser(String name, String email, String password) {
-        if(userRepository.existsByEmail(email)){
-            throw new UserEmailAlreadyExist("User email already exist");
-        }
-        if(!passwordValidation(password)){
-            throw new InvalidPasswordException("Invalid password");
-        }
+    public User register(String name, String email, String password) {
         User user = new User();
         user.setName(name);
         user.setEmail(email);
         user.setPassword(bCryptPasswordEncoder.encode(password));
-        Role defaultRole=roleRepository.findByRole("USER");
-        if(defaultRole==null){
-            defaultRole=new Role();
-            defaultRole.setRole("USER");
-            roleRepository.save(defaultRole);
-        }
-        user.setRoles(Collections.singletonList(defaultRole));
-        user= userRepository.save(user);
-        return user;
+        // Find or create the Role
+        Role role = roleRepository.findByRole("ADMIN")
+                .orElseGet(() -> {
+                    Role newRole = new Role();
+                    newRole.setRole("ADMIN"); // Set role to "ADMIN"
+                    return roleRepository.save(newRole); // Save the new role
+                });
+        user.setRoles(List.of(role));
+        return userRepository.save(user);
     }
 
     @Override
-    public LoginResponse loginUser(String email, String password) {
-        User user=userRepository.findByEmail(email)
-                .orElseThrow(
-                        ()->new UserNotFoundException("User not found.")
-                );
-        if(!bCryptPasswordEncoder.matches(password,user.getPassword())){
-            throw new InvalidPasswordException("Invalid password");
-        }
-            Token token=new Token();
-            token.setUser(user);
-            token.setExpiresIn(LocalDateTime.now().plusMonths(1));
+    public Token login(String email, String password) {
+        Optional<User> user = userRepository.findByEmail(email);
+
+            if(user.isEmpty()){
+                throw new UsernameNotFoundException("User not found");
+            }
+            if(!bCryptPasswordEncoder.matches(password, user.get().getPassword())){
+                throw new BadCredentialsException("Bad credentials");
+            }
+            Optional<Token> existingToken=tokenRepository.findByUser(user.get());
+            if(existingToken.isPresent()){
+                return existingToken.get();
+            }
+            Token token=createToken();
+            token.setUser(user.get());
             tokenRepository.save(token);
-
-        LoginResponse response=new LoginResponse();
-        response.setToken(TokenDTO.fromToken(token.getTokenValue()));
-        response.setUser(UserDTO.fromUser(user));
-        return response;
+            return token;
     }
 
-    /**
-     * Validates a password based on predefined rules:
-     * - Minimum 8 characters, maximum 20 characters
-     * - At least one uppercase letter
-     * - At least one lowercase letter
-     * - At least one digit
-     * - At least one special character
-     * - No spaces allowed
-     *
-     * password the password to validate
-     * @return true if the password is valid, false otherwise
-     */
-    boolean passwordValidation(String password) {
-        if(password ==null || password.isEmpty()){
-            return false;
-        }
-        // Regular expression for password validation
-        String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,20}$";
-        return password.matches(passwordRegex);
+    @Override
+    public void logout(String tokenValue) {
+        Optional<Token> existingToken= tokenRepository.findByTokenValue(tokenValue);
+        assert existingToken.isPresent();
+        tokenRepository.deleteById(existingToken.get().getId());
     }
 
+    @Override
+    public User validateToken(Token token) {
+        return null;
+    }
+
+    public Token createToken(){
+        Token token = new Token();
+        token.setTokenValue(GenerateRandomString.generate(16));
+        token.setExpiresIn(LocalDateTime.now().plusMonths(1));
+        return tokenRepository.save(token);
+    }
 }

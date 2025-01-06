@@ -1,5 +1,6 @@
 package org.example.userservice.repositories;
 
+import org.example.userservice.models.Token;
 import org.example.userservice.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -8,8 +9,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UserRepo extends JpaRepository<User, UUID> {
+public interface TokenRepository extends JpaRepository<Token, UUID> {
 
-    boolean existsByEmail(String email);
-    Optional<User> findByEmail(String email);
+    Optional<Token> findByUser(User user);
+    Optional<Token> findByTokenValue(String tokenValue);
+    void deleteById(UUID id);
 }

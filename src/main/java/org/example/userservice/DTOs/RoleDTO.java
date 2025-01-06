@@ -7,10 +7,11 @@ import org.example.userservice.models.Role;
 @Getter
 @Setter
 public class RoleDTO {
-    private String role;
+    private String roleName;
+
     public static RoleDTO fromRole(Role role) {
         RoleDTO dto = new RoleDTO();
-        dto.setRole(role.getRole());
+        dto.setRoleName(role.getRole());
         return dto;
     }
 }
