@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 @JsonDeserialize
-@NoArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
     private String username;

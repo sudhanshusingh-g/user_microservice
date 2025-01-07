@@ -14,6 +14,7 @@ import com.nimbusds.jose.proc.SecurityContext;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
@@ -86,16 +87,16 @@ public class SecurityConfig {
         return http.build();
     }
 
-//    @Bean
-//    public UserDetailsService userDetailsService() {
-//        UserDetails userDetails = User.builder()
-//                .username("user")
-//                .password("password")
-//                .roles("USER")
-//                .build();
-//
-//        return new InMemoryUserDetailsManager(userDetails);
-//    }
+    @Bean
+    public UserDetailsService userDetailsService() {
+        UserDetails userDetails = User.builder()
+                .username("user")
+                .password("$2a$16$Kw4Sax3YemLiDd2ZIFaCiO.JR0xWVLwgPwBAKdXTK0rTv/9eAi4CO")
+                .roles("USER")
+                .build();
+
+        return new InMemoryUserDetailsManager(userDetails);
+    }
 
 //    @Bean
 //    public RegisteredClientRepository registeredClientRepository() {
